@@ -82,3 +82,5 @@ jobs:
           git add index.html
           git diff --cached --quiet || git commit -m "Use human curated Lingua200 lessons only"
           git push
+
+# Harmless refresh marker: forces GitHub Pages to rebuild after repo visibility changes.
