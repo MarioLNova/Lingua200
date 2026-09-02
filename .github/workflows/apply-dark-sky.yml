@@ -1,0 +1,91 @@
+name: Apply Lingua200 dark sky
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-dark-sky.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add dark sky styling
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          marker = '/* LINGUA200_DARK_SKY */'
+          css = r'''
+/* LINGUA200_DARK_SKY */
+body{
+  background:
+    radial-gradient(circle at 14% 8%,rgba(62,116,255,.23),transparent 27%),
+    radial-gradient(circle at 87% 14%,rgba(143,77,255,.20),transparent 30%),
+    radial-gradient(circle at 52% 78%,rgba(47,179,255,.10),transparent 34%),
+    linear-gradient(180deg,#02050d 0%,#06101d 48%,#08152a 100%)!important;
+  position:relative;
+  overflow-x:hidden;
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.48;
+  background-image:
+    radial-gradient(circle at 8% 12%,rgba(255,255,255,.9) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 19% 34%,rgba(255,255,255,.65) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 32% 18%,rgba(255,255,255,.75) 0 1.2px,transparent 1.7px),
+    radial-gradient(circle at 46% 45%,rgba(255,255,255,.55) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 58% 22%,rgba(255,255,255,.8) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 71% 38%,rgba(255,255,255,.65) 0 1.1px,transparent 1.6px),
+    radial-gradient(circle at 84% 16%,rgba(255,255,255,.85) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 94% 52%,rgba(255,255,255,.6) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 24% 72%,rgba(255,255,255,.58) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 64% 81%,rgba(255,255,255,.7) 0 1.1px,transparent 1.6px);
+  background-size:420px 300px;
+}
+body:after{
+  content:"";
+  position:fixed;
+  width:48vw;
+  height:48vw;
+  right:-18vw;
+  top:18vh;
+  z-index:-1;
+  pointer-events:none;
+  border-radius:50%;
+  background:rgba(92,130,255,.10);
+  filter:blur(90px);
+}
+.hero,.card,.progressbox,.stat,.field{
+  background:linear-gradient(145deg,rgba(13,27,48,.90),rgba(7,17,31,.88))!important;
+  border-color:rgba(255,255,255,.11)!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.28);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.lock{
+  background:
+    radial-gradient(circle at 20% 10%,rgba(62,116,255,.24),transparent 30%),
+    radial-gradient(circle at 85% 20%,rgba(143,77,255,.20),transparent 32%),
+    linear-gradient(180deg,#02050d,#07111f)!important;
+}
+'''
+          if marker not in s:
+              s = s.replace('</style>', css + '\n</style>', 1)
+              p.write_text(s)
+          PY
+      - name: Commit styling
+        run: |
+          git config user.name "MarioLNova"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add dark sky theme to Lingua200"
+          git push
